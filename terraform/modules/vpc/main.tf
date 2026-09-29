@@ -5,6 +5,7 @@ resource "aws_vpc" "this" {
 
   tags = {
     Name = var.name
+    "karpenter.sh/discovery" = var.name	
   }
 }
 
@@ -53,7 +54,8 @@ resource "aws_subnet" "private" {
   availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "${var.name}-private-${count.index + 1}"
+    Name = "${var.name}-private-${count.index + 1}" 
+    "karpenter.sh/discovery" = var.name
   }
 }
 
