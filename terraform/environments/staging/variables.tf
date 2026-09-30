@@ -21,3 +21,10 @@ variable "private_subnet_cidrs" {
   description = "CIDR blocks for staging private subnets"
   type        = list(string)
 }
+
+variable "db_username" {
+  description = "RDS master username"
+  type        = string
+  sensitive   = true
+}
+
