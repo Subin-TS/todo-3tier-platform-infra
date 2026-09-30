@@ -31,3 +31,13 @@ output "karpenter_node_instance_profile_name" {
   description = "EC2 instance profile used by Karpenter-provisioned nodes"
   value       = aws_iam_instance_profile.karpenter_node.name
 }
+
+output "oidc_provider_arn" {
+  description = "IAM OIDC provider ARN for the EKS cluster"
+  value       = aws_iam_openid_connect_provider.eks.arn
+}
+
+output "oidc_provider_url" {
+  description = "OIDC issuer URL for the EKS cluster"
+  value       = aws_iam_openid_connect_provider.eks.url
+}

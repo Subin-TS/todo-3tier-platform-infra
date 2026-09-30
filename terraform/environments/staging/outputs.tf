@@ -7,3 +7,8 @@ output "ecr_repository_urls" {
   description = "ECR repository URLs for application images"
   value       = module.ecr.repository_urls
 }
+
+output "rds_address" {
+  description = "RDS MySQL endpoint address"
+  value       = module.rds.db_instance_address
+}

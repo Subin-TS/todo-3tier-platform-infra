@@ -19,6 +19,17 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.7"
     }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 3.0"
+    }
+
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.38"
+    }
+
   }
   required_version = ">= 1.16"
 
@@ -27,6 +38,53 @@ terraform {
 provider "aws" {
   region  = var.aws_region
   profile = "saints"
+}
+
+provider "helm" {
+  kubernetes = {
+    host                   = data.aws_eks_cluster.this.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args = [
+        "eks",
+        "get-token",
+        "--cluster-name",
+        data.aws_eks_cluster.this.name,
+        "--region",
+        var.aws_region,
+        "--profile",
+        "saints"
+      ]
+    }
+  }
+}
+
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.this.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args = [
+      "eks",
+      "get-token",
+      "--cluster-name",
+      data.aws_eks_cluster.this.name,
+      "--region",
+      var.aws_region,
+      "--profile",
+      "saints"
+    ]
+  }
+}
+
+
+data "aws_eks_cluster" "this" {
+  name = module.eks.cluster_name
 }
 module "vpc" {
   source = "../../modules/vpc"
@@ -103,4 +161,58 @@ module "github_actions" {
   role_name = "todo-staging-github-actions-app"
 
   ecr_repository_arns = values(module.ecr.repository_arns)
+}
+
+resource "kubernetes_manifest" "todo_staging_application" {
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+
+    metadata = {
+      name      = "todo-staging"
+      namespace = "argocd"
+    }
+
+    spec = {
+      project = "default"
+
+      source = {
+        repoURL        = "https://github.com/Subin-TS/todo-3tier-platform.git"
+        targetRevision = "main"
+        path           = "helm/todo-app"
+
+        helm = {
+          valueFiles = [
+            "values-staging.yaml"
+          ]
+        }
+      }
+
+      destination = {
+        server    = "https://kubernetes.default.svc"
+        namespace = "todo-staging"
+      }
+
+      syncPolicy = {
+        automated = {
+          prune    = true
+          selfHeal = true
+        }
+
+        syncOptions = [
+          "CreateNamespace=true"
+        ]
+      }
+    }
+  }
+}
+
+module "aws_load_balancer_controller" {
+  source = "../../modules/aws-load-balancer-controller"
+
+  cluster_name       = module.eks.cluster_name
+  oidc_provider_arn  = module.eks.oidc_provider_arn
+  oidc_provider_url  = module.eks.oidc_provider_url
+  vpc_id             = module.vpc.vpc_id
+  region             = var.aws_region
 }
