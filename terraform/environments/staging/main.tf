@@ -83,3 +83,12 @@ resource "random_password" "db" {
   special          = true
   override_special = "!#$%&*()-_=+?"
 }
+
+module "ecr" {
+  source = "../../modules/ecr"
+
+  repository_names = [
+    "todo-frontend",
+    "todo-backend"
+  ]
+}
