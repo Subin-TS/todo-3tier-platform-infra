@@ -92,3 +92,15 @@ module "ecr" {
     "todo-backend"
   ]
 }
+
+module "github_actions" {
+  source = "../../modules/github-actions"
+
+  github_org    = "Subin-TS"
+  github_repo   = "todo-3tier-platform"
+  github_branch = "main"
+
+  role_name = "todo-staging-github-actions-app"
+
+  ecr_repository_arns = values(module.ecr.repository_arns)
+}
