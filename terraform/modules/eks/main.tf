@@ -323,3 +323,10 @@ resource "aws_iam_instance_profile" "karpenter_node" {
     Name = "${var.cluster_name}-karpenter-node-profile"
   }
 }
+
+resource "aws_eks_access_entry" "karpenter_node" {
+  cluster_name      = aws_eks_cluster.this.name
+  principal_arn     = aws_iam_role.karpenter_node.arn
+  type              = "EC2_LINUX"
+  kubernetes_groups = ["system:nodes"]
+}
