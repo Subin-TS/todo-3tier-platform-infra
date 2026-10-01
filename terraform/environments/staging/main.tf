@@ -54,8 +54,6 @@ provider "helm" {
         data.aws_eks_cluster.this.name,
         "--region",
         var.aws_region,
-        "--profile",
-        "saints"
       ]
     }
   }
@@ -75,8 +73,6 @@ provider "kubernetes" {
       data.aws_eks_cluster.this.name,
       "--region",
       var.aws_region,
-      "--profile",
-      "saints"
     ]
   }
 }
