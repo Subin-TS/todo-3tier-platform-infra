@@ -16,7 +16,7 @@ permissions:
 env:
   AWS_REGION: ap-south-1
   TF_WORKING_DIR: terraform/environments/staging
-  AWS_ROLE_ARN: arn:aws:iam::275839157288:role/todo-staging-github-actions-app
+  AWS_ROLE_ARN: arn:aws:iam::275839157288:role/todo-staging-github-actions-infra
 
 jobs:
   terraform:
