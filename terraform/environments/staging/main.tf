@@ -210,9 +210,46 @@ resource "kubernetes_manifest" "todo_staging_application" {
 module "aws_load_balancer_controller" {
   source = "../../modules/aws-load-balancer-controller"
 
-  cluster_name       = module.eks.cluster_name
-  oidc_provider_arn  = module.eks.oidc_provider_arn
-  oidc_provider_url  = module.eks.oidc_provider_url
-  vpc_id             = module.vpc.vpc_id
-  region             = var.aws_region
+  cluster_name      = module.eks.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+  vpc_id            = module.vpc.vpc_id
+  region            = var.aws_region
+}
+
+resource "kubernetes_manifest" "gitops_root_application" {
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "Application"
+
+    metadata = {
+      name      = "gitops-root"
+      namespace = "argocd"
+    }
+
+    spec = {
+      project = "default"
+
+      source = {
+        repoURL        = "https://github.com/Subin-TS/todo-3tier-platform.git"
+        targetRevision = "main"
+        path           = "gitops"
+        directory = {
+          recurse = true
+        }
+      }
+
+      destination = {
+        server    = "https://kubernetes.default.svc"
+        namespace = "argocd"
+      }
+
+      syncPolicy = {
+        automated = {
+          prune    = true
+          selfHeal = true
+        }
+      }
+    }
+  }
 }
