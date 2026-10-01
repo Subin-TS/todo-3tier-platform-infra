@@ -149,9 +149,11 @@ module "ecr" {
 module "github_actions" {
   source = "../../modules/github-actions"
 
-  github_org    = "Subin-TS"
-  github_repo   = "todo-3tier-platform"
-  github_branch = "main"
+  github_org      = "Subin-TS"
+  github_repo     = "todo-3tier-platform"
+  github_branch   = "main"
+  github_owner_id = "104053006"
+  github_repo_id  = "1391987525"
 
   role_name = "todo-staging-github-actions-app"
 
@@ -274,4 +276,10 @@ resource "aws_eks_access_policy_association" "github_actions_infra_admin" {
   access_scope {
     type = "cluster"
   }
+}
+
+module "acm" {
+  source = "../../modules/acm"
+
+  domain_name = "www.devopslok.in"
 }

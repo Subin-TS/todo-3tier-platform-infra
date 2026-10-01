@@ -23,3 +23,13 @@ variable "ecr_repository_arns" {
   description = "ECR repository ARNs that GitHub Actions can push to"
   type        = list(string)
 }
+
+variable "github_owner_id" {
+  description = "Immutable GitHub owner ID"
+  type        = string
+}
+
+variable "github_repo_id" {
+  description = "Immutable GitHub repository ID"
+  type        = string
+}

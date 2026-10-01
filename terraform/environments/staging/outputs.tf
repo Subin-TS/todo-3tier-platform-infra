@@ -12,3 +12,13 @@ output "rds_address" {
   description = "RDS MySQL endpoint address"
   value       = module.rds.db_instance_address
 }
+
+output "acm_certificate_arn" {
+  description = "ACM certificate ARN for the application"
+  value       = module.acm.certificate_arn
+}
+
+output "acm_domain_validation_options" {
+  description = "ACM DNS validation records"
+  value       = module.acm.domain_validation_options
+}
