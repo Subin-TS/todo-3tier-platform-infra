@@ -252,3 +252,14 @@ resource "kubernetes_manifest" "gitops_root_application" {
     }
   }
 }
+
+module "github_actions_infra" {
+  source = "../../modules/github-actions-infra"
+
+  github_org    = "Subin-TS"
+  github_repo   = "todo-3tier-platform-infra"
+  github_owner_id = "104053006"
+  github_repo_id  = "1392365040"
+  github_branch = "main"
+  role_name     = "todo-staging-github-actions-infra"
+}
