@@ -30,7 +30,12 @@ terraform {
       version = "~> 2.38"
     }
 
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.7"
+    }
   }
+
   required_version = ">= 1.16"
 
 }
@@ -190,6 +195,19 @@ resource "kubernetes_manifest" "todo_staging_application" {
         namespace = "todo-staging"
       }
 
+      ignoreDifferences = [
+        {
+          group     = "networking.k8s.io"
+          kind      = "Ingress"
+          name      = "todo-frontend"
+          namespace = "todo-staging"
+
+          jsonPointers = [
+            "/metadata/annotations/alb.ingress.kubernetes.io~1actions.todo-frontend"
+          ]
+        }
+      ]
+
       syncPolicy = {
         automated = {
           prune    = true
@@ -197,7 +215,8 @@ resource "kubernetes_manifest" "todo_staging_application" {
         }
 
         syncOptions = [
-          "CreateNamespace=true"
+          "CreateNamespace=true",
+          "RespectIgnoreDifferences=true"
         ]
       }
     }
@@ -282,4 +301,12 @@ module "acm" {
   source = "../../modules/acm"
 
   domain_name = "www.devopslok.in"
+}
+
+module "s3_lambda" {
+  source = "../../modules/s3-lambda"
+
+  bucket_name    = "todo-staging-serverless-uploads-275839157288"
+  lambda_name    = "todo-staging-s3-event-logger"
+  lambda_runtime = "python3.13"
 }
